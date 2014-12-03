@@ -1,16 +1,17 @@
+local Net, parent = torch.class('caffe.Net', 'nn.Module')
 local ffi = require 'ffi'
 local C = caffe.C
-local Net = torch.class('caffe.Net', 'nn.Module')
 
 local function typecheck(i)
   if(i:type() ~= 'torch.FloatTensor') then print 'Only FloatTensor supported' end
 end
 
-function Net:init(prototxt_name, binary_name)
+function Net:__init(prototxt_name, binary_name)
+  parent.__init(self)
   self.handle = ffi.new('void*[1]')
-  local old_handle = self.handle
+  local old_handle = self.handle[1]
   C['init'](self.handle, prototxt_name, binary_name)
-  if(self.handle[1] == old_handle[1]) then
+  if(self.handle[1] == old_handle) then
     print 'Unsuccessful init'
   end
   self.output = torch.Tensor()
@@ -27,7 +28,7 @@ end
 function Net:updateGradInput(input, gradOutput)
   typecheck(input)
   typecheck(gradOutput)
-  c['do_backward'](self.handle, input:cdata(), gradOutput:cdata(), self.gradInput:cdata())
+  C['do_backward'](self.handle, gradOutput:cdata(), self.gradInput:cdata())
   return self.gradInput
 end
 
