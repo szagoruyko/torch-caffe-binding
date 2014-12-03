@@ -13,4 +13,4 @@ void set_phase_test();
 void set_device(int device_id);
 ]]
 
-caffe.C = ffi.load './build/libtcaffe.so'
+caffe.C = ffi.load(package.searchpath('libtcaffe', package.cpath))

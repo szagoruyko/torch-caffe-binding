@@ -17,6 +17,8 @@ luarocks make
 Forward and backward supported:
 
 ```lua
+require 'caffe'
+
 net = caffe.Net('deploy.prototxt', 'bvlc_alexnet.caffemodel')
 input = torch.FloatTensor(10,3,227,227)
 output = net:forward(input)
@@ -28,10 +30,12 @@ gradInput = net:backward(input, gradOutput)
 Use can also use it inside a float network, for example:
 
 ```lua
+require 'caffe'
+
 model = nn.Sequential()
 model:add(caffe.Net('deploy.prototxt', 'bvlc_alexnet.caffemodel'))
 model:add(nn.Linear(1000,1))
 ```
 
-To load caffe networks in caffe without having caffe installed use this:
+To load Caffe networks in Torch7 without having Caffe installed use this:
 https://github.com/szagoruyko/loadcaffe
