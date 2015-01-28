@@ -3,15 +3,10 @@ torch-caffe-binding
 
 A short binding to use Caffe as a module in Torch7. Has the same functionality as MATLAB bindings.
 
-You have to have installed and built Caffe, then do like this:
+You have to have installed and built Caffe, then do this:
 
 ```bash
-git clone https://github.com/szagoruyko/torch-caffe-binding.git
-cd torch-caffe-binding/build
-cmake -DCAFFE_DIR=*path to your caffe* ..
-make
-cd ..
-luarocks make
+CAFFE_DIR=/*path-to-caffe-root*/ luarocks install caffe
 ```
 
 Forward and backward supported:
@@ -27,7 +22,7 @@ gradOutput = torch.FloatTensor(10,1000,1,1)
 gradInput = net:backward(input, gradOutput)
 ```
 
-Use can also use it inside a float network, for example:
+Use can also use it inside a network as nn.Module, for example:
 
 ```lua
 require 'caffe'
