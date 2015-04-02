@@ -6,7 +6,7 @@
 
 extern "C" 
 {
-void init(void* handle[1], const char* param_file, const char* model_file);
+void init(void* handle[1], const char* param_file, const char* model_file, const char* phase);
 void do_forward(void* handle[1], THFloatTensor* bottom, THFloatTensor* output);
 void do_backward(void* handle[1], THFloatTensor* gradOutput, THFloatTensor* gradInput);
 void reset(void* handle[1]);
@@ -19,9 +19,17 @@ void set_device(int device_id);
 
 using namespace caffe;  // NOLINT(build/namespaces)
 
-void init(void* handle[1], const char* param_file, const char* model_file)
+void init(void* handle[1], const char* param_file, const char* model_file, const char* phase_name)
 {
-  Net<float>* net_ = new Net<float>(string(param_file));
+  Phase phase;
+  if (strcmp(phase_name, "train") == 0) {
+    phase = TRAIN;
+  } else if (strcmp(phase_name, "test") == 0) {
+    phase = TEST;
+  } else {
+    THError("Unknown phase.");
+  }
+  Net<float>* net_ = new Net<float>(string(param_file), phase);
   net_->CopyTrainedLayersFrom(string(model_file));
   handle[1] = net_;
 }
@@ -29,7 +37,7 @@ void init(void* handle[1], const char* param_file, const char* model_file)
 
 void do_forward(void* handle[1], THFloatTensor* bottom, THFloatTensor* output) {
   Net<float>* net_ = (Net<float>*)handle[1];
-  vector<Blob<float>*>& input_blobs = net_->input_blobs();
+  const vector<Blob<float>*>& input_blobs = net_->input_blobs();
   for (unsigned int i = 0; i < input_blobs.size(); ++i) {
     CHECK_EQ(bottom->size[0]*bottom->size[1]*bottom->size[2]*bottom->size[3], input_blobs[i]->count())
         << "MatCaffe input size does not match the input size of the network";
@@ -71,8 +79,8 @@ void do_forward(void* handle[1], THFloatTensor* bottom, THFloatTensor* output) {
 void do_backward(void* handle[1], THFloatTensor* gradOutput, THFloatTensor* gradInput)
 {
   Net<float>* net_ = (Net<float>*)handle[1];
-  vector<Blob<float>*>& output_blobs = net_->output_blobs();
-  vector<Blob<float>*>& input_blobs = net_->input_blobs();
+  const vector<Blob<float>*>& output_blobs = net_->output_blobs();
+  const vector<Blob<float>*>& input_blobs = net_->input_blobs();
   // First, copy the output diff
   for (unsigned int i = 0; i < output_blobs.size(); ++i) {
     const float* const data_ptr = THFloatTensor_data(gradOutput);
@@ -141,14 +149,6 @@ void set_mode_cpu() {
 
 void set_mode_gpu() {
   Caffe::set_mode(Caffe::GPU);
-}
-
-void set_phase_train() {
-  Caffe::set_phase(Caffe::TRAIN);
-}
-
-void set_phase_test() {
-  Caffe::set_phase(Caffe::TEST);
 }
 
 void set_device(int device_id) {
