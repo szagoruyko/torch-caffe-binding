@@ -9,12 +9,12 @@ You have to have installed and built Caffe, then do this:
 CAFFE_DIR=/*path-to-caffe-root*/ luarocks install caffe
 ```
 
-Forward and backward supported:
+Forward and backward are supported:
 
 ```lua
 require 'caffe'
 
-net = caffe.Net('deploy.prototxt', 'bvlc_alexnet.caffemodel')
+net = caffe.Net('deploy.prototxt', 'bvlc_alexnet.caffemodel', 'test')
 input = torch.FloatTensor(10,3,227,227)
 output = net:forward(input)
 
@@ -28,7 +28,7 @@ Use can also use it inside a network as nn.Module, for example:
 require 'caffe'
 
 model = nn.Sequential()
-model:add(caffe.Net('deploy.prototxt', 'bvlc_alexnet.caffemodel'))
+model:add(caffe.Net('deploy.prototxt', 'bvlc_alexnet.caffemodel', 'test'))
 model:add(nn.Linear(1000,1))
 ```
 
