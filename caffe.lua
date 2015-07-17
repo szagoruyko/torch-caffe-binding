@@ -4,7 +4,7 @@ local C = caffe.C
 
 function Net:__init(prototxt_name, binary_name, phase_name)
   assert(type(prototxt_name) == 'string')
-  assert(type(binary_name) == 'string')
+  --assert(type(binary_name) == 'string')
   assert(type(phase_name) == 'string')
   parent.__init(self)
   self.handle = ffi.new'void*[1]'

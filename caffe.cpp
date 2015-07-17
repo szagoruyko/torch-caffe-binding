@@ -30,7 +30,8 @@ void init(void* handle[1], const char* param_file, const char* model_file, const
     THError("Unknown phase.");
   }
   Net<float>* net_ = new Net<float>(string(param_file), phase);
-  net_->CopyTrainedLayersFrom(string(model_file));
+  if(model_file != NULL)
+    net_->CopyTrainedLayersFrom(string(model_file));
   handle[1] = net_;
 }
 
