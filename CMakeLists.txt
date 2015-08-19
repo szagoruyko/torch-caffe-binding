@@ -4,7 +4,14 @@ CMAKE_POLICY(VERSION 2.6)
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
 
 FIND_PACKAGE(Torch REQUIRED)
-FIND_PACKAGE(CUDA REQUIRED)
+FIND_PACKAGE(CUDA)
+
+# Caffe may have been compiled without CUDA support
+# (Caffe headers check for CPU_ONLY flag)
+IF(NOT CUDA_FOUND)
+	add_definitions(-DCPU_ONLY)
+	SET(CUDA_INCLUDE_DIRS "")
+ENDIF()
 
 IF(NOT EXISTS ${CAFFE_DIR})
   SET(CAFFE_DIR "$ENV{CAFFE_DIR}")
@@ -21,7 +28,7 @@ SET(src caffe.cpp ${PROTO_SRCS})
 FILE(GLOB luasrc *.lua)
 
 ADD_LIBRARY(tcaffe MODULE ${src})
-TARGET_LINK_LIBRARIES(tcaffe TH caffe)
+TARGET_LINK_LIBRARIES(tcaffe TH caffe glog)
 
 ### Torch packages supposes libraries prefix is "lib"
 SET_TARGET_PROPERTIES(tcaffe PROPERTIES
